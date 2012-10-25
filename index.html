@@ -18,9 +18,11 @@ title: Home
 <div id="post">
 	{% for post in site.posts offset: 0 limit: 1 %}
       <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
-      {{ post.date | date_to_string }}
        {{ post.content }}
 
+	   <div style="font-size: .8em; color: #999">
+      {{ post.date | date_to_string }}
+	  </div>
     {% endfor %}
 </div>
 <div style="clear: both"></div>
