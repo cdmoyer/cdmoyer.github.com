@@ -1,0 +1,406 @@
+---
+layout: post
+title: A Programmer's Introduction to jQuery 
+---
+
+<p><small>I wrote this up a while ago, I don't even remember why, but thought some people might enjoy it.</small></p>
+
+
+
+<h2>“JavaScript, Ugh.”</h2>
+
+
+
+<p>For many web developers, JavaScript is one of those subjects they'd rather avoid.  Five years ago, the landscape of client-side scripting was pretty bleak.  Browser inconsistencies, implementation bugs and numerous target platforms made developing client-side JavaScript a messy endeavor.</p>
+
+
+
+<p>And then, much to the chagrin of those developers, “Web 2.0” happened.  Overnight, every site on the internet began using <span class="caps">AJAX</span>, every feature request for a site involved something dynamic and client-side, and JavaScript development quickly became as important a skill as any server-side technology.</p>
+
+
+
+<h2>Enter the Libraries</h2>
+
+
+
+<p>As this trend continued, smart developers began longing for the level of abstraction found in most server-side environments.  Just as a <span class="caps">PHP</span> developer could call <code>mail()</code> on nearly any platform and expect to have an email message sent, JavaScript developers craved this level of abstraction in their day to day work.</p>
+
+
+
+<p>In response to this need, several sharp developers have responded with JavaScript libraries to fill this gap.  These libraries seek to provide a uniform interface, across browser and operating system platforms, for the most common tasks that client-side scripting is called on to perform:</p>
+
+
+
+<ul><li><span class="caps">DOM</span> Manipulation (moving page elements around, hiding and showing objects)</li>
+
+    <li><span class="caps">AJAX</span> and other flavors of client-server interaction that avoid a page refresh</li>
+
+    <li>Animation</li>
+
+    <li>Rich Interfaces (drag and drop, windowing, tabs, events)</li>
+
+    <li>Form manipulation</li>
+
+</ul><p>Each of the popular libraries attempt to provide some or all of these capabilities, packaged in their own <span class="caps">API</span>.</p>
+
+
+
+<h2>On to jQuery</h2>
+
+
+
+<p>This article focuses on one of theses libraries, <a href="http://jquery.com">jQuery</a>.  jQuery design is focused on maintaining a small footprint, cross-browser compliance, and reducing the amount of code which must be written for applications.  It provides abstractions for <span class="caps">AJAX</span>, <span class="caps">DOM</span> manipulation, event handling and animated effects.</p>
+
+
+
+<p>Developing with jQuery depends on two basic concepts, <span class="caps">CSS</span> selectors and method chaining.</p>
+
+
+
+<p>In most vanilla JavaScript code (which does not make use of a library), you will find code like this:</p>
+
+
+
+<pre><code>function toggle_element( element_id ) {
+
+        var element = document.getElementById( element_id );
+
+        if ( !element ) {
+
+                return false;
+
+        }
+
+        var display = element.style.display;
+
+        if ( !display || display == ‘block' ) {
+
+            element.style.display = ‘none';
+
+        }
+
+       else {
+
+            element.style.display = ‘block';
+
+           }
+
+
+
+      return true;
+
+}
+
+window.onload = function () {
+
+        var toggler = document.getElementById( ‘toggle_help' );
+
+        if ( toggler ) {
+
+                toggler.onclick = function () { toggle_element( ‘help' ) }
+
+        }
+
+}
+
+</code></pre>
+
+
+
+<p>The basic idea here, is that when the page is done loading, during the <code>window.onload</code> event, we find the <code>toggle_help</code> element and attach an <code>onclick</code> event to it.  When that element is clicked, we find the <span class="caps">DOM</span> element with an id of “help”, examine its current display state (the <span class="caps">CSS</span> attribute which controls how it is presented in the flow of the page), determine if it is currently hidden or not, and toggle its display state.</p>
+
+
+
+<p>The same code, implemented with jQuery looks something like this:</p>
+
+
+
+<pre><code> $(document).ready( function () {
+
+        $('#toggle_help').click( function () { $('#help').toggle(); });
+
+});</code></pre>
+
+
+
+<p>As you can see, the code is significantly shorter.  Admittedly, to try and compare based on the 22 versus three line count is a bit silly, as one could easily add or subtracts line from either implementation.  I think it is clear, though, which version is simpler.  jQuery strives to provide an appopriate level of abstraction, simplifying the developer's task, but not obscuring it behind a heavy <span class="caps">API</span>.</p>
+
+
+
+<p>An important example of the abstraction jQuery provides is the <code>$(document).ready()</code> construct.  This serves as an enhanced version of <code>window.onload</code>.  The primary enhancement is that it acts in a cross-platform way, firing as soon as the <span class="caps">DOM</span> of the page is ready for manipulation.  This is in contrast to <code>window.onload</code> which can be delayed indefinitely if objects on the page load slowly or improperly (images, iframes, scripts, etc.)</p>
+
+
+
+<h2><span class="caps">CSS</span> Selectors</h2>
+
+
+
+<p>As shown in the previous example, one core features of jQuery is the use of <span class="caps">CSS</span> selectors to find elements within the page.  By now, I imagine that most web developers have had exposure to at least basic <span class="caps">CSS</span>, which is all you'll generally need in order to develop very useful jQuery code.  The selector engine in jQuery implements CSS2 and CSS3 selectors, as well as adding a few useful extras.  The following examples, outline various selectors.</p>
+
+
+
+<p>Very concise selectors and code fragments are provided by the use of the $ symbol.  This is not a reserved character in JavaScript, and is used in jQuery as an alias for the main <code>jQuery</code> object.  This will be seen throughout the examples.</p>
+
+
+
+<p>To start, here's the page we'll work against for these selector examples:</p>
+
+
+
+<pre><code>&lt;html&gt;
+
+        &lt;head&gt;
+
+                &lt;title&gt;Test Page&lt;/title&gt;
+
+        &lt;/head&gt;
+
+        &lt;body&gt;
+
+                &lt;div id="header"&gt;
+
+                        &lt;h1&gt;Test Page&lt;/h1&gt;
+
+                &lt;/div&gt;
+
+                &lt;div class="instructions"&gt;
+
+                        &lt;ul&gt;
+
+                                &lt;li&gt;Read Page&lt;/li&gt;
+
+                                &lt;li&gt;Follow Examples&lt;/li&gt;
+
+                        &lt;/ul&gt;
+
+                &lt;/div&gt;
+
+                &lt;div id="mainform"&gt;
+
+                        &lt;form&gt;
+
+                                &lt;span class="instructions"&gt;
+
+                                        Fill out this form.
+
+                                &lt;/span&gt;
+
+                                &lt;input type="text" name="first_name" /&gt;
+
+                                &lt;select name="gender"&gt;
+
+                                        &lt;option&gt;Male&lt;/option&gt;
+
+                                        &lt;option&gt;Female&lt;/option&gt;
+
+                                &lt;/select&gt;
+
+                        &lt;/form&gt;
+
+                &lt;/div&gt;
+
+        &lt;/body&gt;
+
+&lt;/html&gt;</code></pre>
+
+
+
+<p>A simple example, find the header and slide it out of view.  The # character, in front of a name is used to find an element by its id attribute.  An id should be unique in a pages structure.  <code>slideUp()</code> is an animation method which decreases the height of an element over time, until it is hidden.</p>
+
+
+
+<pre><code>$('#header').slideUp('slow');</code></pre>
+
+
+
+<p>Find the title heading of the page, and change its color.  In the selector, nested elements are found by simply following one selector with another.</p>
+
+
+
+<pre><code>$('#header h1').css('color', 'red');</code></pre>
+
+
+
+<p>Remove the second element of a list.  The <code>:nth-child()</code> selector is provided by jQuery to facilitate this.  <code>remove()</code> takes matched elements out of the <span class="caps">DOM</span>.</p>
+
+
+
+<pre><code>$('#instructions ul li:nth-child(2)').remove()</code></pre>
+
+
+
+<p>Where the <span class="caps">CSS</span> selector concept becomes very powerful, is when you want to operate on groups of items.  All methods of the jQuery object will operate across all the elements that match a given selector.</p>
+
+
+
+<p>Here, we'll find all the instructions and add a class to them.  <code>addClass()</code> is a method which adds a <span class="caps">CSS</span> class to the matched elements, useful to quickly change items to match a set style.  An important note, regarding <code>addClass()</code> is that an <span class="caps">HTML</span> element may have more than once class, even though this is not seen very often.  To match all elements which have a given class, the classname is started with a period.</p>
+
+
+
+<pre><code>$('.instructions').addClass('warning');</code></pre>
+
+
+
+<p>These are some rather simple examples, but they touch on the main principles you'll use when creating selectors for use with jQuery.  Details on all the selectors available are provided in the <a href="http://docs.jquery.com/Selectors">jQuery Docs</a>.</p>
+
+
+
+<h2>Method Chaining and ‘this'</h2>
+
+
+
+<p>One possible disadvantage to using <span class="caps">CSS</span> selectors, as outlined above, is that very complex selectors can become a performance bottleneck.  They can also result in your code being cluttered with the same selector over and over, as you repeatedly manipulate the same elements.  Two facilities help alleviate these issues.</p>
+
+
+
+<h3>Method Chaining</h3>
+
+
+
+<p>All methods of the jQuery object return themselves.  This will be a familiar concept to many object-oriented programmers, but can look a bit foreign to others.  The basic idea being that you need only perform a given selection operation once, and then you perform all necessary operations on that set of results.</p>
+
+
+
+<pre><code>$('.intructions').fadeIn('fast')
+
+        .css('border', '1px solid red')
+
+        .addClass('warning');</code></pre>
+
+
+
+<p>In this example, we find all the instructions.  We cause them to appear, give them a red border and add the warning class.  (Apparently, we really, really want our instructions followed)  It is important to remember that this is equivalent to the following:</p>
+
+
+
+<pre><code>$('.intructions').fadeIn('fast');
+
+$('.intructions').css('border', '1px solid red');
+
+$('.intructions').addClass('warning');</code></pre>
+
+
+
+<p>Chaining methods in this manner allows for more concise code and snappier performance, as the selection operation need only be performed once.</p>
+
+
+
+<h3>‘this'</h3>
+
+
+
+<p>Another facility provided is the definition of <code>this</code> inside each jQuery method context to reflect the current element being operated on.  This becomes important with more advanced concepts, as many of them rely of providing callback functions which are executed in the context of  each element matched by the selector.</p>
+
+
+
+<p>In this example, we find every element with the class “click_to_hide” and then attach an <code>onclick</code> event to it.</p>
+
+
+
+<pre><code>$('.click_to_hide').click( function () {
+
+        $(this).hide();
+
+});</code></pre>
+
+
+
+<p>As you can see, we are creating an anonymous function for each element, and when the element is clicked, the element will be hidden.  In this instance, we wrap <code>this</code> in the <code>jQuery/$</code> method so we have access to the <code>hide()</code> method.  Before wrapping, <code>this</code> is simply a <span class="caps">DOM</span> Element.</p>
+
+
+
+<h2><span class="caps">AJAX</span> and Event Handling</h2>
+
+
+
+<p>Two final topics I'll touch on are <span class="caps">AJAX</span> and event handling.  jQuery provides nice abstractions for both of these, which are likely to prevent numerous bugs and speed development.</p>
+
+
+
+<h3><span class="caps">AJAX</span></h3>
+
+
+
+<p>The must-have feature for modern web sites, <span class="caps">AJAX</span>, is greatly simplified when using the jQuery library.  Without using a library, you would be writing complex code to first instantiate a browser-specific <code>XmlHttpRequest</code> object, then initiating a request and writing a callback function to be triggered.</p>
+
+
+
+<p>With jQuery, for the most common cases of <span class="caps">AJAX</span> usage, you can accomplish this with one simple line:</p>
+
+
+
+<pre><code>// Grab the content of url and inject it into #div_to_load_in
+
+$('#div_to_load_in').load(url);</code></pre>
+
+
+
+<p>For a more complex case, where you want to manipulate or act on the result, you'll need to add a bit more code.</p>
+
+
+
+<pre><code>var url = '/update_status.php';
+
+$.get(url, {status: $('#status_field').val(}), function (data) {
+
+        if ( data == 'OK' ) {
+
+                alert('Status Updated');
+
+        }
+
+        else {
+
+                alert('Sorry, Status Update Failed. (' + data + ')');
+
+        }
+
+});</code></pre>
+
+
+
+<p>Here we're assuming the existence of a server-side script, “update_status.php”, which takes a “status” <span class="caps">GET</span> parameter and returns either “OK” or an error message.  In this example, I also utilized the <code>val()</code> jQuery method which abstracts the process of obtaining the value from any form element.  This includes finding the value attribute of the selected option in a <code>&lt;select&gt;</code> tag, value of a text field, or status of a checkbox.</p>
+
+
+
+<h3>Event Handling</h3>
+
+
+
+<p>Event handling in jQuery involves jQuery object methods which bind functions to events.  All of these binding methods are chainable, as with the previous examples.  Many of the browser-native events are simplified or enhanced, to make the script writer's life easier.</p>
+
+
+
+<p>An example of this is <code>hover()</code> which allows you to bind a function to the movement of the mouse cursor in and out of an element.  Here we add a faux caret to elements of a list as we hover over them, add a ‘selected' class, and then remove these decorations when the user's mouse moves on.</p>
+
+
+
+<pre><code> $('li').hover(
+
+        function () { $(this).prepend('&lt;span&gt;&amp;gt;&lt;/span&gt;').addClass('selected'); },
+
+        function () { $(this).removeClass('selected').find('span:first').remove(); }
+
+);</code></pre>
+
+
+
+<p>In this example, we see use of <code>this</code>, method chaining, and <code>find()</code> which allows using selectors to dig down inside of an element.</p>
+
+
+
+<h2>Further Reading</h2>
+
+
+
+<p>Hopefully, you now have a feeling for what jQuery can do for your code.  This was simply the 10,000 foot introductory fly-by… jQuery packs a sizeable array of methods and functionality into its 14kb size, and it takes a while to familiarize yourself with most of them.  To continue you exploration, these sites may be of use:</p>
+
+
+
+<ul><li><a href="http://jquery.com">jQuery Site</a></li>
+
+    <li><a href="http://docs.jquery.com/">jQuery Manual</a></li>
+
+    <li><a href="http://docs.jquery.com/Tutorials:How_jQuery_Works">How jQuery Works by John Resig, Original jQuery Author</a></li>
+
+</ul>

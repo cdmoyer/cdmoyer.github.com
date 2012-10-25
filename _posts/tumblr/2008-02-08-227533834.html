@@ -1,0 +1,46 @@
+---
+layout: post
+title: jQuery Rocks
+
+
+---
+
+<p><a href="http://jquery.com/">jQuery</a> rocks.  After playing with <span class="caps">YUI</span>, <span class="caps">EXT</span>, and Mootools, and using Prototype/Scriptaculous for over a year, I am now completely sold on jQuery.  It was a <a href="http://errtheblog.com/posts/73-the-jskinny-on-jquery">a post on err.the_blog</a>, which first got me to take a look.</p>
+
+<p><strong>The Basics</strong></p>
+
+<p>As an example of why I am so enamored with jQuery, <a href="http://inarow.net/static/jquery_calendar/">this simple javascript calendar</a> required so little javascript, for so much functionality, that it blew me away.  The whole idea is that you can chain various methods onto the results of simple selectors.  Methods for animation, manipulation, and bindings are all provided.  A snippet from my calendar example:</p>
+
+<pre><code>jQuery(function () {  // jQuery() sets a callback for when the page is ready to go
+
+	$('#calendar .row .day').hover(
+
+		function() { $(this).addClass("active_day"); }, 
+
+		function() { $(this).removeClass("active_day"); }
+
+	)
+
+}</code></pre>
+
+<p>So, a simple <span class="caps">CSS</span> selector, and a utility function that automatically binds a function to the <code>mouseover</code> and <code>mouseout</code> events of each matched element.  <code>addClass()</code> and <code>removeClass()</code> make it incredibly simple to provide visual user feedback.  The simplicity of traversing the <span class="caps">DOM</span> in this manner, with <code>#ids</code>, <code>.classes</code>, and tag types, is incredible.  Enhanced selectors such as <code>:checked</code> and <code>:text</code> are included to make finding the right element easy.</p>
+
+<p><strong>Simple Animation</strong></p>
+
+<p>As another example, the calendar includes a hidden div positioned at the top of the window.  When a message needs to be shown to the user, this function takes care of showing the div, animating it's appearance, updating the textual message, rounding it's corners, and then hiding it again:</p>
+
+<pre><code>function show_results(str) {
+
+	$("#results").html(str);
+
+	$("#results").corner("bottom");
+
+	$("#results").slideDown();
+
+	setTimeout(function() {$("#results").slideUp("slow");}, 4000);
+
+}</code></pre>
+
+<p><strong>Unobtrusive</strong></p>
+
+<p>I think what makes jQuery stand out to me, is how it really lends itself to the unobtrusive javascript paradigm.  The better you semantically mark up your page, the more easily jQuery is to add to the page.</p>

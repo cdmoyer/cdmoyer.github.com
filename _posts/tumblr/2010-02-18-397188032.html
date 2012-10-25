@@ -1,0 +1,74 @@
+---
+layout: post
+title: GitHub has an API -- Adding your Repos to Your Site
+---
+
+<p><em>(This post is pretty old, found it in my tumblr drafts folder, but the code still works.)</em></p>
+
+
+
+<p>So, I was showing <a href="http://friendfeed.com/mfc5">Mike Canz</a> my <a href="http://inarow.new">shiny new homepage</a>, and what was his reaction?  &#8220;How come the list of github projects doesn&#8217;t automatically update like twitter and the blog feed?&#8221;</p>
+
+
+
+<p>&#8220;I don&#8217;t know,&#8221; was my reply.</p>
+
+
+
+<p>A bit of reading about <a href="http://develop.github.com/">the github API</a> and a bit of hacking, and Voila!</p>
+
+
+
+<pre><code>&lt;script type="text/javascript"&gt;
+
+var nongithub_projects = [
+
+    { "name": "jThrottle",
+
+      "homepage": "http://inarow.net/static/jthrottle/",
+
+      "description": "Throttled jQuery.each() to prevent locking the browser on huge loops",
+
+      "fork": false }
+
+];
+
+
+
+var projects_to_skip = {"cdm-s-kol-greasemonkeys": true };
+
+
+
+function github(user) {
+
+    var repos = user.repositories
+
+        .concat(nongithub_projects)
+
+        .sort(function (a, b) { return a.name.toLowerCase() &gt; b.name.toLowerCase(); });
+
+        $('#projects .loading').replaceWith('&amp;lt;ul/&gt;'); 
+
+        $ul = $('#projects ul:first');
+
+        for (var i = 0; i &lt; repos.length; i++) {
+
+            var rep = repos[i];
+
+             if (rep['fork'] == 1 || projects_to_skip[rep.name]) continue;
+
+             var url = rep['homepage'] || rep['url'];
+
+             $ul.append('&amp;lt;li&gt;&amp;lt;a href="'+url+'"&gt;'+rep['name']+'&amp;lt;/a&gt; - '+rep['description']+'&lt;/li&gt;');
+
+        }
+
+ }
+
+ &lt;/script&gt;
+
+  <script src="http://github.com/api/v2/json/repos/show/cdmoyer?callback=pageapp.github" type="text/javascript"></script></code></pre>
+
+
+
+<p>I&#8217;m not going to claim that this code is beautiful, but it&#8217;s a fun snippet for a few minutes work.</p>

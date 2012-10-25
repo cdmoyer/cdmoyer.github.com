@@ -1,0 +1,66 @@
+---
+layout: post
+title: Basic git for a Local Repo
+
+
+---
+
+<p>I'm still not fully sold on git, but sometimes it's nice to set up version control for a single project.  It's nice to be able to track what you've done, roll back experiments and otherwise protect your work (and sanity.)  This is just an annotated account of this process for a small project I was doing with CakePHP, half to later refresh my memory and half for others doing the same.</p>
+
+<pre><code>&gt; git init # create the in-place repo</code></pre>
+
+<p>&gt; git add app # add files</p>
+
+<p>&gt; echo “.gitignore” &gt;.gitignore # ignore some files<br/>
+
+&gt; echo “cake”&#160;&#187; .gitignore<br/>
+
+&gt; echo “.htaccess”&#160;&#187; .gitignore</p>
+
+<p>&gt; git branch working   # create scratchpad</p>
+
+<p>&gt; git checkout working # start working on it.<br/>
+
+Switched to branch “working”</p>
+
+<ol><li>edit some files</li>
+
+</ol><p>&gt; git status</p>
+
+<ol><li>On branch working</li>
+
+	<li>Changed but not updated:</li>
+
+	<li>(use “git add <file>…” to update what will be committed)<br/>
+
+#</file></li>
+
+	<li>modified:   app/controllers/events_controller.php<br/>
+
+#<br/>
+
+no changes added to commit (use “git add” and/or “git commit -a”)</li>
+
+</ol><p>&gt; git add events_controller.php</p>
+
+<ol><li>On branch working</li>
+
+	<li>Changes to be committed:</li>
+
+	<li>(use “git reset <span class="caps">HEAD</span> <file>…” to unstage)<br/>
+
+#</file></li>
+
+	<li>modified:   app/controllers/events_controller.php<br/>
+
+#</li>
+
+</ol><ol><li>rinse and repeat until you're done with a chunk of work</li>
+
+</ol><p>&gt; git commit -m&#8221;Bug fixes&#8221;  # commit this set of changes to the working branch</p>
+
+<p>&gt; git diff ../maste   # see what you changed</p>
+
+<p>&gt; git checkout master  # head back to original<br/>
+
+&gt; git merge working    # merge your changes in</p>

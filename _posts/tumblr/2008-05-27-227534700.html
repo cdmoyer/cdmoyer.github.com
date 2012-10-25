@@ -1,0 +1,28 @@
+---
+layout: post
+title: Google "AJAX Libraries" API
+
+
+---
+
+<p>Google is now providing <a href="http://code.google.com/apis/ajaxlibs/documentation/#AjaxLibraries">free hosting for various popular JS toolkits</a>.  jQuery, MooTools, Prototype and Dojo seem to be included at this point.  The idea is that they provide servers which properly server up cache-headers (and bandwidth, I suppose) and the more people that use these URLs, the faster interactive “Web 2.0” pages will load. (Because the user will have already loaded and cached the libraries from another site using the Google <span class="caps">API</span>)</p>
+
+<p>They providee a loading <span class="caps">API</span>:</p>
+
+<pre><code>&lt;script	src="http://www.google.com/jsapi"&gt;&lt;/script&gt;
+
+&lt;script&gt;
+
+	google.load("jquery", "1.2");
+
+&lt;/script&gt;</code></pre>
+
+<p>And a <span class="caps">URL</span> which provides the requested version and library:</p>
+
+<pre><code>&lt;script	src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"&gt;&lt;/script&gt;</code></pre>
+
+<p>Both methods allow you to provide as much specificity as you want for the version.  Ask for version 1, and you'll get the latest in the 1 series… ask for 1.2.6 and you'll get that minor revision.</p>
+
+<p>I'm not sure, is this a great idea… or another foothold for Google to take over the world.  Or both?</p>
+
+<p><a href="http://code.google.com/apis/ajaxlibs/"><span class="caps">AJAX</span> Libraries <span class="caps">API</span> Project Page on Google</a></p>

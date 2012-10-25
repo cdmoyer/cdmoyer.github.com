@@ -1,0 +1,46 @@
+---
+layout: post
+title: Google's AJAX APIs Playground
+
+
+---
+
+<div style="float:right; border: 1px solid black; margin-left: 1em;">
+
+<p><img src="http://inarow.net/static/images/entries/googajaxapis.jpg" title="AJAX APIs Playground" alt="AJAX APIs Playground"/><br/></p>
+
+</div>
+
+<p><a href="http://code.google.com/apis/ajax/playground/">Google's <span class="caps">AJAX</span> APIs Playground</a> is an awesome new tool recently released by Google.  It allows you to browse through their various APIs and view examples.  This is a great way to see what the Google APIs have to offer and get a quick example of each.</p>
+
+<p>Even better, each example can be executed, modified and re-executed right on the page.  The final source your create can be copy and pasted, and each <span class="caps">API</span> has a link to the documentation.</p>
+
+<p>Definitely head on over and check it out.  I follow various Google developer blogs, but I was quite suprised to see the breadth of their <span class="caps">API</span> offering.  Graphs, maps, search, blogging and more are all included, with great examples and an excellent interface.</p>
+
+<p>As an example, check out this incredily simple way to add a scrolling <span class="caps">RSS</span> ticker to a page.  This will grab the provided feed, and rotate the articles inside the #content div on the page.  You'll want to check out <a href="http://code.google.com/apis/ajax/playground/#dynamic_feed_control_-_vertical">the full example</a> to see the needed javascript files and provided stylesheet.</p>
+
+<p><br/></p>
+
+<pre><code>google.load('feeds', '1');</code></pre>
+
+<p>function OnLoad() {<br/>
+
+    var feeds = [{<br/>
+
+        title: ‘In A Row',<br/>
+
+        url: ‘http://inarow.net/index.rss'<br/>
+
+    }];</p>
+
+var options = {horizontal: true};
+
+
+
+new GFdynamicFeedControl(feeds, “content”, options);
+
+<p>}</p>
+
+<p>google.setOnLoadCallback(OnLoad);</p>
+
+<p><br style="clear: left"/></p>

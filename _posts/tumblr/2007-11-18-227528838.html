@@ -1,0 +1,186 @@
+---
+layout: post
+title: 'Dead Simple Photo Blog by Email :: AutoBlogger'
+
+
+---
+
+<p><strong>Goal:</strong>  Live up to my photoblog's name, <em>Proudestfather</em>, by updating it with adorable pictures on a regular basis.  <br/><strong>Plan:</strong>  Whip up a quick perl script which will take emails from an email account, parse, create thumbnails, and generate static <span class="caps">HTML</span>.<br/><strong>Results:</strong> <a href="/static/downloads/autoblogger.tar.gz">Download Tarball</a>  — Anonymous <span class="caps">SVN</span> (svn co svn://inarow.net/trunk/autoblogger) — <a href="http://proudestfather.inarow.net/">Proudest Father</a></p>
+
+<p>With this in mind, I decided to implement this project in perl, for several reasons:</p>
+
+<ul><li>Familiarity with several <span class="caps">CPAN</span> modules for handling email</li>
+
+	<li>A desire to dig further into Template-Toolkit, after playing around with <a href="http://catalyst.perl.org/">catalyst</a>.</li>
+
+	<li>An expectation that most of the project would be manipulating strings.</li>
+
+</ul><p>With this in mind, I set out to complete this project in an evening…</p>
+
+<pre><code> 5:30	Start
+
+ 5:35	README and templates/index.tpl created
+
+ 6:00	AutoBlogger::Post.pm created
+
+		This involved learning some basics about perl objects.
+
+		Experimented with Class::Std and h2xs to make a Module
+
+		Went with a very simple class</code>
+
+
+
+<code> 6:10	Made autoblogger.pl and it takes arguments
+
+		Found GetOpt::Long and applied it
+
+		Verifies that pop credentials are passed
+
+		Verifies that you give it a publish and storage directory that exist</code>
+
+		
+
+<code> 6:15	Mail::POP3Client chosen and installed		
+
+		Net::Pop3 doesn't seem to do SSL</code>
+
+
+
+<code>Coffee</code>
+
+
+
+<code> 7:10	Pop Harness in place, need SSL
+
+		Done putzing with IO::Socket::SSL, took a while to make CPAN install it properly
+
+		Throw in a debug_tell() sub that takes a message and optional importance</code>
+
+
+
+<code>Dinner</code>
+
+
+
+<code> 8:15	Start framework for parsing mails
+
+		Add --rebuild and --nopop to support testing
+
+		Man, getopts makes that easy</code>
+
+
+
+<code> 8:50	Ok, now I have lots of command line args, write a usage()
+
+		Currently, the script:
+
+			logs in to pop
+
+			downloads emails	
+
+			parses them out to find date, text and image</code>
+
+
+
+<code>		Time to refactor.
+
+			Goals:
+
+				Raw MIME message archived
+
+				Ability to just rebuild index, a single month, or all
+
+				Don't recreate images when rebuilding, unless size changes	
+
+			Plan:
+
+				Break storage/ into months (storage/200712/)
+
+				Put messages in their own folder
+
+						storage/YYYYmm/dd_hhmmss/
+
+							raw.txt
+
+							MIME::Parser files</code>
+
+		
+
+<code> 9:50	Ok, that's rewritten and tested.  
+
+		Onto writing out an index.</code>
+
+
+
+<code>10:40	Rewrote it so that the AutoBlogger::Post class takes the storage directory for 
+
+			the email in the constructor, and builds the object around this.
+
+		Now to have it ensure that the thumbnails are there.</code>
+
+
+
+<code>Snack time.  Hmm, pretzels.	 Housework, exciting!</code>
+
+
+
+<code>12:15	Start and finish thumbnailing, make the size optional.  This goes quickly with GD.
+
+		File::Copy::Recursive is needed to move the MIME::Parser files into their target 
+
+			storage directory (mainly because I happen to have /home and my docroot on 
+
+			different partitions)</code>
+
+
+
+<code>12:40	Tweaks, debuging... w00t!  index.html is there.		</code>
+
+
+
+<code>Ok, time for some Kingdom of Loathing turns.  (<a href="http://www.kingdomofloathing.com/,">http://www.kingdomofloathing.com/,</a> give it a try)</code>
+
+
+
+<code> 1:30	Back</code>
+
+ 
+
+<code> 1:40	Refactor out the index into a do_file
+
+ 2:00	Apply that to the archives
+
+ 2:50	Test, tweak template, site up with 2 downloaded posts, index and archive!</code></pre>
+
+<p>At this point, the project is working and ready for a beta release!  Quite an evening, but good results.  I'm sure I'll push out updates.  I want to support passing in a date in the body of the message, for importing older posts.  I did take the time to create some usage details.</p>
+
+<pre><code>autoblogger.pl [args] path-to-storage path-to-published-site
+
+-v [--verbose]      Verbose mode
+
+-h [--host=]*       Pop Host
+
+-u [--user=]*       Pop User
+
+-p [--pass=]*       Pop Password
+
+-s [--ssl]          Use SSL
+
+-n [--nopop]        Don't get newmessages
+
+-r [--rebuild=]     Rebuild output index,200708 or index or 200708 or all
+
+-i [--indexsize=]   How many posts on the index
+
+-e [--extension=]   Extension for output html (default html)
+
+   [--tmp=]         tmp directory (defaults to /tmp
+
+   [--thumbsize=]   thumbnail size (defaults to 150x150)
+
+   [--fullsize=]    full image size (defaults to 800x800)
+
+   * required
+
+</code></pre>

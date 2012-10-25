@@ -1,0 +1,26 @@
+---
+layout: post
+title: apt-get install sun-java6-jdk
+
+
+---
+
+<p>I was looking to play with <a href="http://www.scala-lang.org/intro/index.html">scala</a>, and needed to install the java jdk.  (<span class="caps">FYI</span>, <a href="http://alblue.blogspot.com/2007/10/scala-introduction-to-scala-interpreter.html">this</a> is the post that got me interested in scala, part of a <a href="http://alblue.blogspot.com/search/label/scala">series by Alex Blewitt</a>)  I kept reading that you could smply <code>apt-get</code> java now, after Sun had changed their licensing a while back, but it took me quite a bit of googling to find out how. (although, that may just be deficiency on my part, as the answer is pretty obvious if you know about Ubuntu components.)</p>
+
+<p>It turns out you can, you just need to add <code>multiverse</code> to your list of apt components.  Modify <code>/etc/apt/sources.list</code> from:</p>
+
+<pre><code>#deb <a href="http://archive.ubuntu.com/ubuntu/">http://archive.ubuntu.com/ubuntu/</a> gutsy universe 
+
+#deb-src <a href="http://archive.ubuntu.com/ubuntu/">http://archive.ubuntu.com/ubuntu/</a> gutsy universe</code></pre>
+
+<p>to:</p>
+
+<pre><code>deb <a href="http://archive.ubuntu.com/ubuntu/">http://archive.ubuntu.com/ubuntu/</a> gutsy universe multiverse
+
+deb-src <a href="http://archive.ubuntu.com/ubuntu/">http://archive.ubuntu.com/ubuntu/</a> gutsy universe multiverse</code></pre>
+
+<p>and then:</p>
+
+<pre><code>sudo apt-get install sun-java6-jdk</code></pre>
+
+<p>Note:  I uncommented the universe lines, and added <code>multiverse</code>.  The <code>universe</code> component isn't strictly needed for this, but I find it useful.  <code>universe</code> is software maintained by the community, but which the Ubuntu maintainers make no claims to support, including security fixes.  <code>multiverse</code> software includes software which does not meet the Ubuntu free licensing requirements.</p>

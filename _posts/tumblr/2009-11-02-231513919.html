@@ -1,0 +1,158 @@
+---
+layout: post
+title: RubyKnight Gem Released (v0.2.0)
+---
+
+<p>Well that was fun.  I made my first ruby gem, learned Jewelcutter and published my gem to gemcutter.</p>
+
+
+
+<p>What does this mean?  You can <code>gem install rubyknight</code> and then play chess or write some code using a chess board model and engine.</p>
+
+
+
+<!-- more -->
+
+
+
+<pre><code>&gt; sudo gem install rubyknight
+
+Successfully installed rubyknight-0.2.0
+
+1 gem installed
+
+Installing ri documentation for rubyknight-0.2.0...
+
+Installing RDoc documentation for rubyknight-0.2.0...
+
+
+
+&gt; rubyknight
+
+
+
+Enter a move such as e2e4, or a command.
+
+Commands are prefixed with !
+
+  !quit - quit
+
+  !undo - revert a move
+
+  !load &lt;file&gt; - load game state from a file
+
+  !dump &lt;file&gt; - dump game state to a file
+
+  !play - tell the computer to start playing the current color
+
+  !reset - start a new game
+
+
+
+rnbqkbnr
+
+pppppppp
+
+........
+
+........
+
+........
+
+........
+
+PPPPPPPP
+
+RNBQKBNR
+
+
+
+Score: 0
+
+Enter move [White]&gt; e2e4
+
+rnbqkbnr
+
+pppppppp
+
+........
+
+........
+
+....P...
+
+........
+
+PPPP.PPP
+
+RNBQKBNR
+
+
+
+Score: -2
+
+Enter move [Black]&gt; !play
+
+rnbqkbnr
+
+.ppppppp
+
+p.......
+
+........
+
+....P...
+
+........
+
+PPPP.PPP
+
+RNBQKBNR
+
+
+
+Score: -2
+
+Enter move [White]&gt;
+
+</code></pre>
+
+
+
+<h3>OR</h3>
+
+
+
+<pre><code>require 'rubygems'
+
+require 'rubyknight'
+
+board = RubyKnight::Board.new
+
+
+
+puts board.to_s
+
+print "Enter move: "
+
+$stdin.each do |move|
+
+    move.strip!
+
+    begin
+
+        board.cnotation_move move
+
+    rescue RubyKnight::IllegalMoveException
+
+        print "Enter a real move! #{$!.to_s}\n"
+
+    end 
+
+    puts board.to_s
+
+    print "Enter move: "
+
+end
+
+</code></pre>

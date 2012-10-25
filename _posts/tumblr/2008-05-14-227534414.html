@@ -1,0 +1,36 @@
+---
+layout: post
+title: 'Tweets Per Hour :: Flot & Twitter API Mash-Up (JSONP?)'
+
+
+---
+
+<div style="float:right;">
+
+<p><a href="http://tph.inarow.net/"><img src="http://inarow.net/static/images/entries/twitter_per_hour.gif" title="Screenshot" alt="Screenshot"/><br/></a></p>
+
+</div>
+
+<p><a href="http://tph.inarow.net/"><span class="caps">TPH</span> :: Tweets per Hour</a></p>
+
+<p>So, as I <a href="http://www.inarow.net/entries/development/js/flot_toy.html">mentioned before</a>, Flot is an awesome jQuery plugin for making on-the-fly graphs.  The <a href="http://groups.google.com/group/twitter-development-talk/web/api-documentation">twitter api</a> supports a <span class="caps">JSONP</span> mode for its output.  100 lines of javascipt (well, 60 if you condense whitespace and braces, commas… less if the goal was to write small code).</p>
+
+<p>What I don't understand about what I've done here is <span class="caps">JSONP</span>, which I first read about <a href="http://remysharp.com/2007/10/08/what-is-jsonp/">here, at remy sharp's blog</a>… Why doesn't it get more press.  Solves the problem that I would mentally run in to all the time when considering various mash-ups and takes on various internet APIs, that of cross-domain limitations with XMLHTTPRequest.</p>
+
+<p>The heart of the magic is demonstrated in this incredibly simple example:</p>
+
+<pre><code>$.getJSON('http://twitter.com/statuses/user_timeline.json?id=CDMoyer&amp;callback=?',
+
+      twitterCallback);</code></pre>
+
+<p>function twitterCallback(timeline) {<br/>
+
+      alert('Twitter Username: ' + timeline<sup class="footnote"><a href="#fn0">0</a></sup>.user.screen_name);<br/>
+
+}</p>
+
+<p>The magic happens in two places.  First, jQuery replaces the <code>?</code> in <code>callback=?</code> piece of the <span class="caps">URL</span> with a function name that references to the callback you pass to <code>getJSON()</code>. Second, the twitter <span class="caps">API</span> takes the callback parameter and wraps the <span class="caps">JSON</span> result structure in a function call with that name.  The end result is that the <span class="caps">JSON</span> structure is passed to a function in the namespace of your document, circumventing the same-domain origin policy</p>
+
+<p>So far <a href="http://tph.inarow.net/?tweeter=scobleizer">Scoble</a> has reached the highest <span class="caps">TPH</span> (8.0) I've seen, looking at <a href="http://tph.inarow.net/?tweeter=scobleizer,cdmoyer,davewiner,ijustine">various popular tweeters</a>.</p>
+
+<p><br clear="right"/></p>

@@ -1,0 +1,102 @@
+---
+layout: post
+title: Am I Running out of Memory?
+
+
+---
+
+<p><strong>This was originally authored as a reply to a <a href="http://www.linode.com">linode</a> forum poster asking if they needed a virtual server with a larger memory allocation.</strong></p>
+
+<p>I think this tends to be one of those things that nobody can agree on, partially because various common linux tools tend to report memory usage in fairly obtuse and different ways.  It's often difficult to find out how much memory you are actually using, because of shared libraries, memory, disk buffers, etc.</p>
+
+<p>I find that using several tools helps to give you a better picture of what's going on with your system.</p>
+
+<p>To see the different output, here's a couple different commands on my linode 450:</p>
+
+<pre><code>:::: cdmoyer:5 ~ :::: free -m
+
+             total       used       free     shared    buffers     cached
+
+Mem:           439        430          8          0         80        224
+
+-/+ buffers/cache:        125        313
+
+Swap:          899          0        899</code></pre>
+
+<p>:::: cdmoyer:5 ~ :::: vmstat <del>a -S M<br/>
+
+procs -</del>————-memory————— <del>—swap</del>- <del>-</del>—io—— <del>system</del>- <del>-</del>-cpu——<br/>
+
+r  b   swpd   free  inact active   si   so    bi    bo   in   cs us sy id wa<br/>
+
+2  0      0      8     65    328    0    0     0     1   10    2  0  0&#160;100  0</p>
+
+<p>:::: cdmoyer:5 ~ :::: vmstat <del>S M<br/>
+
+procs -</del>————-memory————— <del>—swap</del>- <del>-</del>—io—— <del>system</del>- <del>-</del>-cpu——<br/>
+
+r  b   swpd   free   buff  cache   si   so    bi    bo   in   cs us sy id wa<br/>
+
+1  0      0      8     80    224    0    0     0     1   10    2  0  0&#160;100  0</p>
+
+<p>:::: cdmoyer:5 ~ :::: cat /proc/meminfo<br/>
+
+MemTotal:       449604&#160;kB<br/>
+
+MemFree:          8604&#160;kB<br/>
+
+Buffers:         82828&#160;kB<br/>
+
+Cached:         229456&#160;kB<br/>
+
+SwapCached:        548&#160;kB<br/>
+
+Active:         336360&#160;kB<br/>
+
+Inactive:        66676&#160;kB<br/>
+
+HighTotal:           0&#160;kB<br/>
+
+HighFree:            0&#160;kB<br/>
+
+LowTotal:       449604&#160;kB<br/>
+
+LowFree:          8604&#160;kB<br/>
+
+SwapTotal:      921592&#160;kB<br/>
+
+SwapFree:       920992&#160;kB<br/>
+
+Dirty:              44&#160;kB<br/>
+
+Writeback:           0&#160;kB<br/>
+
+AnonPages:       90204&#160;kB<br/>
+
+Mapped:          37308&#160;kB<br/>
+
+Slab:            27536&#160;kB<br/>
+
+SReclaimable:    20232&#160;kB<br/>
+
+SUnreclaim:       7304&#160;kB<br/>
+
+PageTables:       1508&#160;kB<br/>
+
+NFS_Unstable:        0&#160;kB<br/>
+
+Bounce:              0&#160;kB<br/>
+
+CommitLimit:   1146392&#160;kB<br/>
+
+Committed_AS:   195216&#160;kB<br/>
+
+VmallocTotal:   397304&#160;kB<br/>
+
+VmallocUsed:      2836&#160;kB<br/>
+
+VmallocChunk:   394468&#160;kB</p>
+
+<p>What you'll see, the longer your system runs, the less free memory you'll have, even if you don't add any processes.  This is because of the cache and buffers.  These are used by the kernel to speed things up, and not necessarily memory “used” by the system.  Especially the <a href="http://www.linux-tutorial.info/modules.php?name=MContent&amp;pageid=310">cache</a>.  The kernel is just taking advantage of the fact that you have spare memory and keeping things read from disk in memory, for performance.  Should you fire up more processes (or they start automatically under load), the kernel will give up parts of that space holding older files that haven't been used in a while.</p>
+
+<p>The other thing to note, is in that both of your cases, basically no swap has been or is being used.  That's indicative that even though free claims you have limited memory free, you actually have  a lot more headroom.  If you start to use swap regularly, or have little free memory without it being used by cache, then you need to consider upgrading your <span class="caps">RAM</span>.</p>

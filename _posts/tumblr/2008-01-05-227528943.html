@@ -1,0 +1,18 @@
+---
+layout: post
+title: 'AutoBlogger Update :: 0.9.1'
+
+
+---
+
+<p>Version <strong>0.9.1</strong> of AutoBlogger is now available.</p>
+
+<p>This includes two changes, one bug fix and one new feature:</p>
+
+<ul><li>—from=aregexhere allows for simplistic “security”  or running multiple blogs from one email account</li>
+
+	<li>The contents of the body are now handled more intelligently.  Formerly, they were doing something screwy with newlines in messages (using stringify() on the mime body, as opposed to open()).  <br/>
+
+It now handles line endings in a way that is intuitive to me:  one new line is treated as white space, whereas two newlines in a row are replaced with <code>&lt;br /&gt;&lt;br /&gt;</code></li>
+
+</ul><p><strong>AutoBlogger Site:</strong>  <a href="http://www.inarow.net/entries/projects/one_evening/autoblogger/"><a href="http://www.inarow.net/entries/projects/one_evening/autoblogger/">http://www.inarow.net/entries/projects/one_evening/autoblogger/</a></a><br/><strong>Grab it:</strong>  <a href="http://www.inarow.net/static/downloads/autoblogger.tar.gz">Download Tarball</a> or Anonymous <span class="caps">SVN</span> (svn co svn://inarow.net/trunk/autoblogger)</p>

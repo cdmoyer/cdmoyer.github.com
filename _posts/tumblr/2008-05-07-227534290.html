@@ -1,0 +1,26 @@
+---
+layout: post
+title: Flot - Slick jQuery Graphing Plugin
+
+
+---
+
+<p>I <a href="http://jquery.com/blog/2007/12/06/flot-a-new-plotting-plugin-for-jquery/">read about Flot</a> a couple months back and have wanted an excuse to play with it, as it looked pretty slick.  Unfortunately, not actual opportunity presented itself, so I had to just <a href="http://inarow.net/static/flot_toy/">make something up</a>.  The neat thing is how simple it is to make a basic graph, but how you can achieve some awesome effects through various options.  <a href="http://people.iola.dk/olau/flot/examples/">The latter examples</a> on the Flot site show of some great features.</p>
+
+<p><img src="http://inarow.net/static/images/entries/flot_toy.gif" title="Simple Flot Example" alt="Simple Flot Example"/></p>
+
+<p><br/></p>
+
+<pre><code>var data = [[0,0], [1,1], [4,5], [123,2], [12.3]];
+
+$.plot($('#graph_area'), [data]);</code></pre>
+
+<p>And that's it.  You need to make sure and have dimensions defined for the target element, and Flot will automatically scale your graph based on your data.  If you want more data sets, you pass in more arrays inside the secord argument.  <code>plot()</code> also takes a third argument, <code>options</code> which lets you controll the appearance and more advanced features.</p>
+
+<ul><li><a href="http://code.google.com/p/flot/">Flot Site</a></li>
+
+	<li><a href="http://inarow.net/static/flot_toy/">My Little Flot Toy</a></li>
+
+	<li><a href="http://people.iola.dk/olau/flot/examples/visitors.html">Flot Example with Zooming and Timescale</a></li>
+
+</ul>

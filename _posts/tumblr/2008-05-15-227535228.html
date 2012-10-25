@@ -1,0 +1,74 @@
+---
+layout: post
+title: 'Tweet :: Command-Line Twitter Broadcast with Readline Support'
+
+
+---
+
+<p>So, after giving <a href="http://b.lesseverything.com/">Allan</a> some feedback about the latest less project, <a href="http://getmorehoney.com/">Get More Honey</a>, we chatted a bit and it came out that I'm a <span class="caps">PHP</span> guy, with a bit of a leaning towards CakePHP.  But, I'll fully admit that I love the ruby language, have played with it quite a bit, but simply never had an opportunity to write a rails app.  People pay me to write <span class="caps">PHP</span> code. ;)</p>
+
+<p>But, it did inspire me to fire up vim and write something in ruby.  (Some day I'll dust off RubyKnight, the chess engine I wrote in ruby after reading <a href="http://astore.amazon.com/iar-20/detail/0691118183/002-5357856-1821657">Behind Deep Blue</a>)  Here it is:</p>
+
+<pre><code>#!/usr/bin/ruby
+
+# Written by Chris Moyer (chris@inarow.net // <a href="http://inarow.net/">http://inarow.net/</a>)
+
+# Do with it whatever you want.  That's public domain, right?</code></pre>
+
+<p>require ‘readline'<br/>
+
+require ‘rubygems'<br/>
+
+require ‘twitter'</p>
+
+<p>user = <span class="caps">ARGV</span><sup class="footnote"><a href="#fn0">0</a></sup><br/>
+
+pass = <span class="caps">ARGV</span><sup class="footnote"><a href="#fn1">1</a></sup></p>
+
+<p>if&#160;!user or&#160;!pass then<br/>
+
+        puts ‘usage: tweet username password'<br/>
+
+        exit<br/>
+
+end</p>
+
+<p>$0 = “tweet #{user} xxxxxxxx”<br/>
+
+twitter = Twitter::Base.new(user, pass)</p>
+
+<p>while line = Readline::readline('(tweet)&gt; ') do<br/>
+
+        Readline::<span class="caps">HISTORY</span>.push(line)<br/>
+
+        if line.length &gt; 140 then<br/>
+
+                puts “#{line.length – 140} characters too long, try again.”<br/>
+
+        else        <br/>
+
+                begin<br/>
+
+                        twitter.post(line)<br/>
+
+                        puts “Tweeted!”<br/>
+
+                rescue <br/>
+
+                        puts “Failed to tweet! (#{$!})”<br/>
+
+                end<br/>
+
+        end<br/>
+
+end</p>
+
+<p>puts “\nBye!”</p>
+
+<p>It solves my problem of reading twitter via gtalk, and not wanting to open twitter.com to post… while hating when I underestimate the length of my message and being trunctaed.  I can just let this run in window of my screen session, and tweet away.</p>
+
+<p>So, I'd love to hear from the rubyists out there:</p>
+
+<ul><li>What aspects of this are not good, idiomatic ruby practice?</li>
+
+</ul>

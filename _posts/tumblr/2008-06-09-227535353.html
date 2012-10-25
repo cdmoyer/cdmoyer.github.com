@@ -1,0 +1,56 @@
+---
+layout: post
+title: RubyKnight - Chess Engine in Ruby
+
+
+---
+
+<p>I wrote this a while ago, while reading <a href="http://astore.amazon.com/iar-20/detail/0691118183/002-5357856-1821657">Behind Deep Blue</a> (which is a great book).  It's a chess engine written in ruby.  The actual engine is implemented as a move generator, positional evaluator and a board class which handles the state as a set of bitboards and undoable move events.</p>
+
+<p>Included are a command-line client and an xboard interface.  The command-line interface accepts coordinate notation and a few commands:</p>
+
+<blockquote>
+
+<p>e2e4 – coordinate notation, move a pawn<br/>
+
+!play – tell the engine to play as the current color<br/>
+
+!undo – roll back a move<br/>
+
+!dump filename – store the current board state<br/>
+
+!load filename – load a stored board<br/>
+
+!reset – start a new game<br/>
+
+!quit – end the game</p>
+
+</blockquote>
+
+<p>You can cut the verbosity of the generator engine by editing line 121 of evaluator.rb:</p>
+
+<pre><code>@@ -118,7 +118,7 @@ module RubyKnight
+
+                def time_it label
+
+                        start = Time.now
+
+                        res = yield
+
+-                       puts "TIMING( '#{label}=&gt;#{res}'): #{Time.now - start} seconds"
+
++                       #puts "TIMING( '#{label}=&gt;#{res}'): #{Time.now - start} seconds"
+
+                        res
+
+                end
+
+        end</code></pre>
+
+<p>The evaluator is very primitive, and only thinks one move ahead.  Some sort of breadth-first time thinking mode was next on the to-do list.</p>
+
+<p>You can grab the code via git:</p>
+
+<pre><code>git clone <a href="http://darkwing.inarow.net/git/rubyknight.git">http://darkwing.inarow.net/git/rubyknight.git</a>
+
+</code></pre>

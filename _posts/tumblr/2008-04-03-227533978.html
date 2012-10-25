@@ -1,0 +1,58 @@
+---
+layout: post
+title: Stupid Comma!
+
+
+---
+
+<p>Normally, when defining a large array in <span class="caps">PHP</span>, I'll write it like so:</p>
+
+<pre><code>$foo = array(
+
+    'some_key'  =&gt; $val,
+
+    'other_key' =&gt; $val2,
+
+    'also_this' =&gt; $val3,
+
+);</code></pre>
+
+<p>Note the comma on the ‘also_this' line.  I've gotten into this habit, as it makes it much simpler to later rearrange the order of these elements or add another.  As I've been playing with jQuery, I've had cause to create assorted <span class="caps">JSON</span> data structures, and wrote a bit of code like so:</p>
+
+<pre><code>$('#slider').slider(
+
+    {
+
+        handle: '.handle',
+
+        minValue: 0,
+
+        maxValue: 9000,
+
+        steps: 9,
+
+        stop: slider_slid_callback,
+
+    }
+
+);</code></pre>
+
+<p>(See the trailing comma?)  Well, this works great… in FireFox.  In IE?</p>
+
+<p><sub>Line 13</sub><br/><sub>Error: expected identifier, string or number.</sub></p>
+
+<p>Normally I'd complain about IE here, but looking at <a href="http://json.org">Introducing Json</a> I see this defintion for a <span class="caps">JSON</span> object (doh!):</p>
+
+<pre><code> object
+
+    {}
+
+    { members } 
+
+members
+
+    pair
+
+    pair , members
+
+</code></pre>

@@ -1,0 +1,122 @@
+---
+layout: post
+title: Peace of Mind, Moving /etc into Subversion
+
+
+---
+
+<p>Having recently moved my various projects to a virtual private server<sup class="footnote"><a href="#fn1">1</a></sup>, I've been spending a fair amount of time mucking about in various files under /etc.  Being a programmer, and not a sysadmin, at heart, I have a tendency to make my edits and test them out in a rapid-fire fashion.  Most of the time, this is fine, I don't run any high availability services and am fairly careful.  But, it does occasionally leave me wondering why or how I changed something… and how to put things back the way they were.</p>
+
+<p>Being a programmer, I tend to live and breathe in version control, so my first thought was to version my config files.  My primary concerns were twofold:</p>
+
+<ul><li>Security.  I don't want to accidentally expose my /etc directory to the world via the anonymous subversion server I run for projects.</li>
+
+	<li>Breakage.  I know many programs (well, at least sshd) are picky about the permissions and ownership of their config files, and didn't want to break things by managing to munge them all.</li>
+
+</ul><p>In my previous usage of subversion, the process of importing a new project has gone something like:</p>
+
+<pre><code>&gt; svn import -m"Initial commit of project foo" foo file:///opt/svn/trunk/
+
+&gt; mv foo foo_back
+
+&gt; svn checkout file:///opt/svn/trunk/foo
+
+&gt; # look around, make sure everything is OK
+
+&gt; rm -rf foo_back</code></pre>
+
+<p>My concern with this was with the process of checking out a whole new copy, worried that the permissions and ownership would change.  I understand that subversion is supposed to preserve permissions, but was still concerned.  As far as security, it decided to simply create a whole new repository, owned and readable only by root (and outside the path served by svnserve).  A short bit of googling later led me to the <a href="http://subversion.tigris.org/faq.html#in-place-import">Subversion FAQ's</a> “How can I do an in-place ‘import'”.  The process turned out to be entirely painless:</p>
+
+<pre><code>&gt; sudo svnadmin create /opt/svn_etc
+
+&gt; cd /opt
+
+&gt; sudo chmod -R go-rwx svn_etc/
+
+&gt; svn mkdir file:///opt/svn_etc/etc -m"make empty dir for etc"
+
+&gt; cd /etc
+
+&gt; sudo svn checkout file:///opt/svn_etc/etc .
+
+&gt; sudo svn add *
+
+&gt; sudo svn commit -m"Initial commit of all /etc"</code></pre>
+
+<p>And, done.  To ensure that I never leave some changes dangling, I whipped up a quick shell script and added it to <code>/etc/cron.daily/</code>.<sup class="footnote"><a href="#fn2">2</a></sup></p>
+
+<pre><code>#!/bin/bash</code>
+
+
+
+<code>SENDMAIL=/usr/sbin/sendmail
+
+EMAIL=chris@inarow.net</code>
+
+
+
+<code>OUT=` svn status -q /etc `
+
+echo -n "${OUT}" | grep "" &gt; /dev/null &amp;&amp; \
+
+	echo -e "To: ${EMAIL}\nSubject: /etc locally modified\nContent-type: text/plain\n\n${OUT}\n" |\
+
+	${SENDMAIL} "${EMAIL}"</code></pre>
+
+<p>For a final check, I verify the local security:</p>
+
+<pre><code>&gt; whoami
+
+cdmoyer
+
+&gt; cd /etc
+
+&gt; svn status passwd
+
+&gt; svn log passwd
+
+svn: Unable to open an ra_local session to URL
+
+svn: Unable to open repository 'file:///opt/svn_etc/etc/passwd'
+
+svn: Can't open file '/opt/svn_etc/etc/passwd/format': Permission denied
+
+&gt; svn diff passwd
+
+&gt; svn diff -r1 passwd
+
+svn: Unable to open an ra_local session to URL
+
+svn: Unable to open repository 'file:///opt/svn_etc/etc/passwd'
+
+svn: Can't open file '/opt/svn_etc/etc/passwd/format': Permission denied
+
+&gt; cd /opt/svn
+
+svn/     svn_etc/
+
+&gt; cd /opt/svn_etc/
+
+-bash: cd: /opt/svn_etc/: Permission denied
+
+&gt; ls /opt/svn
+
+svn/     svn_etc/
+
+&gt; ls /opt/svn_etc/
+
+ls: /opt/svn_etc/: Permission denied
+
+&gt; sudo svn log passwd
+
+[sudo] password for cdmoyer:
+
+------------------------------------------------------------------------
+
+r2 | root | 2007-11-29 21:49:41 -0500 (Thu, 29 Nov 2007) | 1 line</code></pre>
+
+<p>All told, this took about 20 minutes, including the googling and monitoring script.  Certainly a worthwhile investment.</p>
+
+<p class="footnote" id="fn1"><sup>1</sup> I'll have to review my new host, <a href="http://www.linode.com/">Linode</a>, at some point.  (OneWordReview:  <strong>Wow!</strong>)</p>
+
+<p class="footnote" id="fn2"><sup>2</sup> And, look at that, running <code>sudo /etc/cron.daily/etctattler</code> and I have a new email.</p>

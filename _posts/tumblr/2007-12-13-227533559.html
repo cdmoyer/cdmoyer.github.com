@@ -1,0 +1,200 @@
+---
+layout: post
+title: Four Steps to Diagnose your LAMP Application Bottlenecks
+---
+
+<div style="float: right; padding: 0 .5em 1em 1em; width: 140px; text-align: right;">
+
+<p><img src="http://inarow.net/static/images/entries/diagnosing_your_lamp.jpg" style="border: 1px solid black;" title="Powerless Lightbulb" alt="Powerless Lightbulb"/><br/><span style="font-size:80%">Don't let the lights go out on your site.</span></p>
+
+</div>
+
+
+
+<p>At some point, most successful <span class="caps">LAMP</span> applications will reach a critical mass of users, usage, data or other milestone, and a previously smooth running application will grind to a halt.  Sometimes the degradation comes in waves, a blessing and a curse —  it's harder to troubleshoot periodic slow-downs, but it will affect fewer of your users.  In either case, the first step to solving your problem is generally the same… Better logging.  While analysis of the code and system may be helpful, the real bottlenecks are rarely obvious.  (Or you wouldn't have written the code that way, to begin with.)</p>
+
+
+
+<p>So, to the point:  you're in this situation, the app is in production, what steps can you take to find the bottlenecks?</p>
+
+
+
+<ol><li><strong>Track MySQL Queries Taking over a Second</strong><br/><br/>
+
+By default, mysql will log queries which take 10 seconds or longer.  Depending on your installation, these may or may not be logged to a file.  Certainly, if you have queries showing up here, at 10+ seconds, you should investigate them.  In most cases, I expect that you'll be investigating performace before the point at which you have numerous queries taking over ten seconds.  On a production site, the vast majority of your queries should be returning in significantly under a second.<br/><br/>
+
+To lower your slow query threshold and enable logging, you'll want to modify your <code>my.cnf</code> (often <code>/etc/mysql/my.cnf</code>), and ensure that you have settings like this:<br/><pre><code>set-variable=long_query_time=1
+
+log-slow-queries=/var/log/mysql/slow_query.log
+
+</code></pre><br/><br/>
+
+You may need to touch that file, and ensured that it is owned and writable by your mysql process.  When you restart mysql, look in the mysql error log (often <code>/var/log/mysql/mysql.err</code>) for any errors along the lines of <em>“Could not use /var/log/slow_query.log for logging (error 13)”_.  If you see these, create the @slow</em>query.log@ and set it's ownership to that of your mysql user.<br/><br/>
+
+Now, depending on the state of your system, <code>slow_query.log</code> will begin to accumulate queries.  The actual format of the slow log is bit verbose, but <code>mysqldumpslow</code>, a perl script included with most mysql installations can parse it and produce some more meaningful output.  It will take various integers in your queries (a user_id, thread_id, etc) and generalize them, so you can locate types, instead of specific queries.<br/><pre><code>&gt; mysqldumpslow -t=10 -s=t /var/log/slow_query.log
+
+
+
+Reading mysql slow query log from /var/log/slow_query.log
+
+
+
+Count: 46  Time=80.46s (3701s)  Lock=0.00s (0s)  Rows=512311 (117447821), bob[bob]@[10.0.0.32]
+
+  SELECT * FROM forum_posts
+
+
+
+Count: 26  Time=68.26s (1775s)  Lock=0.00s (0s)  Rows=426 (117447821), bob[bob]@[10.0.0.32]
+
+  SELECT * FROM forum_posts WHERE thread=N
+
+
+
+Count: 120  Time=3.52s (422s)  Lock=0.63s (76s)  Rows=58.0 (6960), bob[bob]@[10.0.0.32]
+
+  SELECT authors FROM forum_posts WHERE lastpost &gt; N
+
+
+
+...
+
+</code></pre><br/>
+
+
+
+
+
+The next step is analyzing this, likely throwing each of these into an <span class="caps">EXPLAIN</span> query (or asking yourself why you are selecting every row in the forum_posts table), adding some indexes, and rewriting some code.  The scope of this article is finding the bottlenecks… fixing them is left as an exercise for the reader.</li>
+
+<li><strong>Monitor <span class="caps">PHP</span> Memory Usage &amp; Log Apache Delivery Times</strong><br/><br/>
+
+Out of the box, your apache install is likely using the <em><span class="caps">NCSA</span> extended/combined log format</em>.  You're going to take this format and add to pieces of data to it.  The first will be the memory used by <span class="caps">PHP</span> during the rendering of each page.  The second will be the time that apache spends delivering this page.  Both of these values will be tacked onto the end of the log format.  Many log processing scripts will ignore fields added onto the end of the line, so adding them here is least likely to break things.<br/><br/>
+
+Unless you've mucked with it, your httpd.conf likely has lines like this:<br/><br/><pre><code>LogFormat "%h %l %u %t \"%r\" %&gt;s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined
+
+LogFormat "%h %l %u %t \"%r\" %&gt;s %b" common
+
+
+
+CustomLog /usr/local/apache/logs/access_log common
+
+&lt;/pre&gt;</code><br/><br/>
+
+Whichever log format is being used, this is the name at the end of the <code>CustomLog</code> directive, you're going to make a copy of that <code>LogFormat</code>, give it a name like “commondebug”, and switch the CustomLog directive to use this format.<br/><br/>
+
+The fields you will be adding are:<br/>
+
+* <code>%T</code> – The time taken to server the request in seconds<br/>
+
+* <code>%{mod_php_memory_usage}n</code> – Memory used by <span class="caps">PHP</span> in bytes<br/><br/><pre><code>LogFormat "%h %l %u %t \"%r\" %&gt;s %b \"%{Referer}i\" \"%{User-Agent}i\" %T %{mod_php_memory_usage}n" combineddebug
+
+LogFormat "%h %l %u %t \"%r\" %&gt;s %b %T %{mod_php_memory_usage}n" commondebug
+
+
+
+CustomLog /usr/local/apache/logs/access_log commondebug
+
+&lt;/pre&gt;</code><br/><br/>
+
+At this point, you'll be collecting some great data in you apache logs.  You can get some good information with some quick shell magic, like so:<br/><br/><br/><pre><code>&gt; awk '{printf("%07d\t%d\t%s\n", $(NF), $(NF-1), $7)}' access_log  | sed 's/\?.*//' | sort -g -k1
+
+0001232 0       /baz.php
+
+0001232 0       /bar.php
+
+...
+
+1712160 0       /foo.php
+
+1717640 0       /foo.php
+
+1907800 0       /foo.php
+
+2010840 0       /foo.php
+
+&lt;/pre&gt;</code><br/><br/>
+
+Replace, <code>-k1</code> with <code>-k2</code> to sort by the delivery times.  Keep in mind, delivery times will include the time to send the bytes over the network — http clients can do screwy things, and you'll occasionally see anomalous data including 120+ second connects where the client just stopped accepting packets, but didn't close the socket.<br/><br/>
+
+From here, you'll want to examine each of the memory-hogging scripts, and anything which is consitently long-running.</pre></pre></pre></li>
+
+<li><strong>Log <span class="caps">PHP</span> Errors</strong><br/><br/>
+
+This is one that is obvious, but easy to miss.  Many sites disable the display of errors, via <code>php.ini</code> on their production servers.  (This is a good idea, preventing the revelation of any inappopriate information to end users.)<br/><br/>
+
+You'll be modifying your <code>php.ini</code> to include lines such as these:<br/><pre><code>error_reporting =       E_ALL &amp; ~E_NOTICE         ; Show all errors except for notices
+
+display_errors  =       Off                       ; Do not print out errors (as a part of the HTML script)
+
+log_errors      =       On                        ; Log errors into a log file 
+
+error_log       =       "/var/log/php_error.log"  ; log errors to specified file
+
+</code></pre><br/><br/>
+
+By itself, this isn't likely to pinpoint any performance issues, but it may help you locate other issues.   Although, if are really bad and you may see a slew of “maximum execution time of XX seconds exceeded” in various pages.  You are more likely to see errors which correlate to long-running or memory-consuming scripts and queries identified earlier.</li>
+
+<li><strong>Take Snapshots at an OS Level</strong><br/><br/>
+
+This is the area that makes the average developer wish they had a sysadmin on call.  Unfortunately, for many small sites and projects, the developer is forced to wear that hat as well.  At some point, if usage gets high enough, no amount of redesign or optimization will be enough to stretch your hardware further.  So the question will be, what is the bottleneck?  <span class="caps">RAM</span>, IO, <span class="caps">CPU</span>?<br/><br/>
+
+On this topic, your options are pretty endless.  Linux provides endless tools for monitoring resources, and different people will recommend different ones.  Something incredibly simple, like below can be pretty informative.<br/><pre name="code"><code>#!/usr/bin/perl
+
+
+
+my $URL_TO_TEST = 'http://test.test/test.test';
+
+my $THRESHOLD = 2;
+
+
+
+open(my $log, '&gt;&gt;status_log.txt');
+
+while (1) {
+
+    my $start = time();
+
+    `curl "$URL_TO_TEST" &gt; /dev/null`;
+
+    my $took = time() - $start;
+
+    if ($took &gt; $THRESHOLD) {
+
+        print $log "$took seconds load ::";
+
+        print $log `date`;
+
+        print $log "\n\n";
+
+        print $log `vmstat -a`;
+
+        print $log "\n\n";
+
+        print $log `uptime`;
+
+        print $log "\n\n";
+
+        print $log `ps awux`;
+
+        print $log "\n\n";
+
+        print $log `mysqladmin -hHOST -uUSER -pPASSWORD processlist`;
+
+        print $log "----------------------------------------------\n\n";
+
+    }
+
+    sleep(30);
+
+
+
+}
+
+</code></pre></li>
+
+</ol><p><br/></p><hr><br/><strong>The important thing to remember</strong> through all of your troubleshooting, is that you are likely in this position because your application has taken off beyond your expectations.  Stop.  Take a deep breath, and hopefully this advice will help you get past this bottleneck, and onto the next.
+
+
+
+<p>There is certainly more data you can collect, but the steps above should be enough to start troubleshooting your performance woes.  At some point, I should really write about what to do once you've found the trouble.</p>

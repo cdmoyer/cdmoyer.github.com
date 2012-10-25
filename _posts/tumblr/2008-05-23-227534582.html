@@ -1,0 +1,16 @@
+---
+layout: post
+title: TinyDB, Toy Framework and jQuery Plugin
+
+
+---
+
+<p><a href="http://tinydb.org/">TinyDB</a> is an interesting take on “cloud storage.”   Basically, you send some data via <span class="caps">GET</span>, they give you a <span class="caps">URL</span>, your data is stored in that <span class="caps">URL</span>.  It's not private and it doesn't store a lot of information, but it has some interesting possibilities.</p>
+
+<p>I think a good use for these sort of things, will be quick-built client-side only content dumpage.  You go to “twitter-overload.com” type in a larger than 140 character message and hit save.  JavaScript bundles up your data, stores it in TinyDB and hands you back a <span class="caps">URL</span> which will reload that data from TinyDB and display it.  You take that url and post it to twitter.  (Yes, I know that services like this exist, but the idea of doing it entirely client-side is interesting.)</p>
+
+<p><a href="http://darkwing.inarow.net/tinydb/">TinyDB Toys</a> is a simple proof of this concept. Here's a <a href="http://darkwing.inarow.net/tinydb/14C,13C,14L,14M">TinyDB Toy <span class="caps">URL</span></a> with some embedded data.</p>
+
+<p>To facilitate this, I wrote a jQuery plugin, <a href="http://inarow.net/static/downloads/jquery.tinydb.js">jQuery.tinydb</a>.  The two methods are documented within the source.</p>
+
+<p>Drop me a comment if you hack up something cool with this.</p>

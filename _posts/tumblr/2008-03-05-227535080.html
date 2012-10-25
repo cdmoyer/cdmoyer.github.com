@@ -1,0 +1,62 @@
+---
+layout: post
+title: reCAPTCHA -- Fight Spam, Read Books
+
+
+---
+
+<p>In a startling development (to me), my small blog started getting spammed like crazy.  Out of 100+ posts, a handful were legitimate.  After going through the process of manually deleting them all, I decided to invest a bit of time in a <a href="http://en.wikipedia.org/wiki/Captcha"><span class="caps">CAPTCHA</span></a> system for my <a href="http://www.blosxom.com/">blosxom</a> blogging software.  Having seen the reCAPTCHA interface on several sites, and read about it before, I decided to start there.</p>
+
+<p>Basically, reCAPTCHA provides some incredibly simple APIs to add a <span class="caps">CAPTCHA</span> to your site.  The neat part about it, though, is that the images presented to the user are actually difficult to scan words from real-life books.  The results of people submitting these CAPTCHAs are combined to improve the digitization of hard-copy archives.  The <a href="http://recaptcha.net/learnmore.html">learn more page</a> on the reCAPTCHA site has a more detailed explanation.</p>
+
+<h2>Implementation</h2>
+
+<p><strong>Step 1</strong> – Sign Up, Get Keys</p>
+
+<p><a href="http://recaptcha.net/whyrecaptcha.html">Here</a></p>
+
+<p><strong>Step 2</strong> – Add the the interface to the front end</p>
+
+<pre><code>	&lt;script	type="text/javascript"
+
+		src="http://api.recaptcha.net/challenge?k=$MYKEY"&gt;
+
+	&lt;/script&gt;</code></pre>
+
+<noscript>
+
+<p><iframe src="http://api.recaptcha.net/noscript?k=%24MYKEY" height="300" width="500" frameborder="0"></iframe><br/><textarea name="recaptcha_challenge_field" rows="3" cols="40"></textarea></p>
+
+
+
+<input type="hidden" name="recaptcha_response_field" value="manual_challenge"></noscript>
+
+<p>This javascript (and iframe) <span class="caps">API</span> takes several parameters, allowing you to customize the look and feel of the interface.</p>
+
+<p><strong>Step 3</strong> – Validate the submitted reCAPTCHA</p>
+
+<p>As bloxsom is written in perl, I went with the <span class="caps">CPAN</span> module <code>Captcha::reCAPTCHA</code>.</p>
+
+<pre><code>	use Captcha::reCAPTCHA;
+
+	my $rec = Captcha::reCAPTCHA-&gt;new;</code></pre>
+
+<p>my $rec_res = $rec→check_answer(‘6LdWHQEAAAAAAORoD7pXt_BAHRdsZ2GPjmcFdWWi', $ENV{'REMOTE_ADDR'},<br/>
+
+			param(‘recaptcha_challenge_field'), param(‘recaptcha_response_field'));</p>
+
+<p>// [snip some lines]</p>
+
+<p>if (!$good ||&#160;!$rec_res→{is_valid}) {<br/>
+
+		$comment_response = “Some required fields were missing.”;<br/>
+
+		if (!$rec_res→{is_valid}) { <br/>
+
+			$comment_response = ‘Please verify that you are human, with the reCAPTCHA!'; <br/>
+
+		}<br/>
+
+	}</p>
+
+<p>Obviously, not the most elegant code, but it was an incredibly simple process… and my blog has been spam free for 3 weeks!</p>

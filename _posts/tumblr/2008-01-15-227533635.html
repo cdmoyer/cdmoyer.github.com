@@ -1,0 +1,232 @@
+---
+layout: post
+title: Git-ting started with Git
+
+
+---
+
+<p>Recently, I've wanted to become aquainted with Git, the open source Version Control System that Linus Torvalds wrote after moving away from BitKeeper.  My past <acronym title="Source Control Management"><span class="caps">SCM</span></acronym> experience has been with <span class="caps">CVS</span> and Subversion, and the Git model varies significantly.  The main difference being that Git is entirely distributed… Essentially, every user has a complete copy of the repository including history and metadata.  They work with other repostiories by accepting patches.</p>
+
+<p>If you've worked long enough with source code, you're familiar with patches, probably enough that the network of repostitories connected and synced up by a series of patches described above scares you.  It sounds a lot harrier than it ends up being in practice.</p>
+
+<p>For my examples, I'll walk through the processes I've used while working with <a href="http://iolanguage.com">Io</a>, the neat little language that got me using Git in the first place.  Keep in mind, I'm a relative Git newbie and my vantage is that get moving quickly with projects using Git.</p>
+
+<h2>Getting Started</h2>
+
+<ul><li>Get Git.  I'm going to suggest the source.  I installed the ubuntu <code>git-core</code> package originally, and it was missing some incredibly useful features, <code>git rebase -i</code> being the most important.<br/><a href="http://git.or.cz/">Git Website</a>, <a href="http://www.kernel.org/pub/software/scm/git/">Git Download Site</a></li>
+
+</ul><ul><li>Now, clone your target repository:</li>
+
+</ul><pre><code>&gt; git clone git://www.iolanguage.com/Io
+
+Initialized empty Git repository in /home/cdmoyer/foo/Io/.git/
+
+remote: Generating pack...
+
+remote: Done counting 7812 objects.
+
+remote: Deltifying 7812 objects.
+
+remote:  100% (7812/7812) done
+
+Indexing 7812 objects...
+
+remote: Total 7812 (delta 3799), reused 7468 (delta 3566)
+
+  100% (7812/7812) done
+
+Resolving 3799 deltas...
+
+  100% (3799/3799) done</code></pre>
+
+<ul><li>At this point, you have the entire repository cloned on your local machine.  You can do many of the things you'd normally expect with source control:</li>
+
+</ul><pre><code>&gt; git log
+
+...
+
+&gt; git log Makefile
+
+...
+
+&gt; git status
+
+# On branch master
+
+nothing to commit (working directory clean)</code></pre>
+
+<ul><li>Next, it's helpful to name the remote repository you cloned.  Steve is the creator of Io, and maintains the authoritative repository, so I named it <code>steve</code> (it's already named <code>origin</code>, but when you start to work with multiple repositories, a mnemonic name is helpful).  We'll also use <code>git fetch</code> to ensure that our local copy of <code>steve</code> is still up to date:</li>
+
+</ul><pre><code>&gt; git remote add steve git://www.iolanguage.com/Io
+
+get fetch steve</code></pre>
+
+<ul><li>At this point, we can now compare two things.  <code>steve/master</code> and <code>master</code>, which is our local copy.  We haven't changed anything, so we won't see any changes.  <code>master</code> is the name automatically given to the branch you checked out and started with.  I've found it's best to leave this branch alone, letting it represent the state of <code>steve/master</code>, and use it for merging changes in from other sources.  I'll periodically update <code>master</code> from <code>steve</code>, this is done in one of two ways:</li>
+
+</ul><pre><code>&gt; git pull steve</code></pre>
+
+<p>or</p>
+
+<pre><code>&gt; get fetch steve
+
+git merge steve/master</code></pre>
+
+<p>They seem to be synonymous.</p>
+
+<h2>Making Changes</h2>
+
+<p>At this point, if you're a <span class="caps">CVS</span> or Subversion user, you're a bit concerned… branches are generally no fun.  But under Git, they are pretty manageable.  Next we'll walk through creating a branch, doing work on it, and then creating a patch.</p>
+
+<ul><li>Create the branch</li>
+
+</ul><pre><code> &gt; git branch foo
+
+&gt; git branch
+
+  foo
+
+* master</code></pre>
+
+<ul><li>Switch to the branch</li>
+
+</ul><pre><code>&gt; git checkout foo
+
+Switched to branch "foo"
+
+&gt; git branch
+
+* foo
+
+  master</code></pre>
+
+<ul><li>Make some changes</li>
+
+</ul><pre><code>&gt; echo "# a comment" &gt;&gt; Makefile
+
+&gt; git status
+
+# On branch foo
+
+# Changed but not updated:
+
+#   (use "git add &lt;file&gt;..." to update what will be committed)
+
+#
+
+#       modified:   Makefile
+
+#
+
+no changes added to commit (use "git add" and/or "git commit -a")</code></pre>
+
+<ul><li>Add those changes to the local index cache.</li>
+
+</ul><pre><code>&gt; git add Makefile
+
+&gt; git status
+
+# On branch foo
+
+# Changes to be committed:
+
+#   (use "git reset HEAD &lt;file&gt;..." to unstage)
+
+#
+
+#       modified:   Makefile
+
+#</code></pre>
+
+<ul><li>Rinse and repeat, change, git add, change, etc.</li>
+
+	<li>Finish changes, commit to the branch.</li>
+
+</ul><pre><code>&gt; git commit -m"Modified the makefile" Makefile
+
+Created commit 14ff3a4: Modified the makefile
+
+ 1 files changed, 1 insertions(+), 0 deletions(-)
+
+&gt; git status
+
+# On branch foo
+
+	nothing to commit (working directory clean)</code></pre>
+
+<p><strong>Note:</strong> Locally modified and added files <em>follow</em> you when you change branches, so be careful with files that you modify and leave uncommitted as you move around.</p>
+
+<h2>Fetching and Merging Changes</h2>
+
+<ul><li>Switch back to master (note the note above)</li>
+
+</ul><pre><code>&gt; git checkout master</code></pre>
+
+<ul><li>Update from remote server</li>
+
+</ul><pre><code>&gt; git pull steve</code></pre>
+
+<ul><li>Switch back to the working branch</li>
+
+</ul><pre><code>&gt; git checkout foo</code></pre>
+
+<ul><li>Merge changes.  This will open an editor and show you all the commits you've made to this branch.  You can pick and choose which commits to keep, which ones to squash together, and which ones to delete.  Afterwards, Git will take your commits, bundle them up as you specify, merge the recent changes you pulled into the <code>master</code>, and then apply your changes on top.  If there is a conflict, it will drop you to the command-line for fixing any issues.</li>
+
+</ul><pre><code>&gt; git rebase -i master
+
+... Uh oh, we had a conflict!
+
+&gt; vi Makefile
+
+&gt; git add Makefile
+
+&gt; git commit Makefile
+
+&gt; git rebase --continue</code></pre>
+
+<p>If we couldn't fix the merge conflicts, we could do <code>git rebase --abort</code></p>
+
+<h2>Preparing a Patch</h2>
+
+<ul><li>Switch back to our branch (if we weren't there already)</li>
+
+</ul><pre><code>&gt; git checkout foo</code></pre>
+
+<ul><li>Merge down messy working commits into one</li>
+
+</ul><pre><code>&gt; git rebase -i master
+
+# generally change all but the first "edit" into "squash" ... you'll see what I mean.</code></pre>
+
+<ul><li>Verify that we have what we want.  Use —color to loo for the whitespace issues that Git hates.  (many editors add whitespace to the end of lines that you edit, if you aren't very careful.)</li>
+
+</ul><pre><code>&gt; git diff --color master</code></pre>
+
+<ul><li>Make the patch</li>
+
+</ul><pre><code>&gt; git format-patch master
+
+0001-Modified-the-makefile.patch</code></pre>
+
+<ul><li>And voila, there's your patch, now you can email it off to “steve”.</li>
+
+	<li>You may want to set some git config options to have your name and email address automatically be set properly in the patch file.</li>
+
+</ul><pre><code>&gt; git config user.name Chris Moyer
+
+&gt; git config user.email chris@inarow.net</code></pre>
+
+<h2>Miscellany</h2>
+
+<ul><li>Normally <code>git diff</code> will only show you changes since your last addition, to see since your last commit:</li>
+
+</ul><pre><code>&gt; git diff --cached</code></pre>
+
+<ul><li>Search files controlled by git</li>
+
+</ul><pre><code>&gt; git grep "error"</code></pre>
+
+<ul><li>Delete a branch that you're done with, including your local changes and code</li>
+
+</ul><pre><code>&gt; git branch -D branchname</code></pre>
+
+<p>Hopefully this will give you enough to get started.  It's server me well so far.  As I come across other common, useful or complex operations, I'll write them up.  Good Luck!</p>

@@ -1,0 +1,60 @@
+---
+layout: post
+title: Linode.com == Awesome VPS Provider
+
+
+---
+
+<div style="float:right">
+
+<p><a href="http://linode.com/"><img src="http://inarow.net/static/images/entries/linode.png" title="Linode Logo" alt="Linode Logo"/></a></p>
+
+</div>
+
+<p>I've been hosting a virtual private server with <a href="http://www.linode.com/">Linode</a> for roughly 7 months and I must say, I've been incredibly happy.  My happiness was magnified recently, when they added a Newark, NJ facility to their list of locations.  Previously, I had been hosted in their Fremont, CA datacenter.  While it was perfectly adequate, the difference in ping times and throughput that came from being on the same coast made for a compelling case, and I migrated this server.</p>
+
+<p>This is where Linode really shines.  I logged into my admin console, and submitted a support ticket asking to migrate.  Next, I hopped over to their <span class="caps">DNS</span> manager (<span class="caps">DNS</span> hosting is provided free with a linode account) and cranked the <span class="caps">TTL</span> of all my <span class="caps">DNS</span> records down to 1 hour.  While I was still doing that (at roughly 12:30AM <span class="caps">EST</span>),  one of the staff had configured my migration and responded with my new IP.</p>
+
+<p>After waiting a day or two for the ne <span class="caps">TTL</span> to propogate, it was time to move.  I updated a few IP specific config files, made sure everything was in order and shut down.  I followed the “you have a migration pending” link in the linode admin console, and initiated the transfer.  The wonderful <span class="caps">AJAX</span> admin console kept me updated about the transfer of my disk images.  I added a boot job to the end of the queue and went to bed.</p>
+
+<p>Unfortunately, here's where <strong>I</strong> screwed up.  Linodes bit went perfectly, the images moved over and the server booted.  Unfortunately, I hadn't cleaned up /etc/udev/rules.d/ and my virtual Xen nic got assigned to eth1 because of the new <span class="caps">MAC</span> address.  This meant that dhclient failed to get me my shiny new IP.</p>
+
+<p>Fast forward to the morning, I discover the server isn't up.  I immediately ssh to the <span class="caps">LISH</span> console… which is an account on the Xen host which allows attaching to the server console, scheduling boot jobs and troubleshooting a server with network issues.  After a bit of fumbling around, I hopped onto #linode and asked for help:</p>
+
+<pre><code>08:58 -!- cdmoyer [~cdmoyer@cpe-76-180-99-185.buffalo.res.rr.com] has joined #linode
+
+08:59 &lt; cdmoyer&gt; Hmm, eth0 disappeared after migration?  doh.
+
+08:59 &lt; caker&gt; cdmoyer: blame udev
+
+09:00 &lt; caker&gt; cdmoyer: remove /etc/udev/rules.d/70-persistent-net.rules and/or /etc/iftab, restart networking
+
+09:03 &lt; cdmoyer&gt; ah, awesome, thanks caker.
+
+09:04 -!- CDMoyer_ [~cmoyer@207.192.69.20] has joined #linode
+
+09:04 -!- cdmoyer [~cdmoyer@cpe-76-180-99-185.buffalo.res.rr.com] has quit [Quit: cdmoyer]
+
+09:05 -!- CDMoyer_ is now known as CDMoyer
+
+09:05 &lt; caker&gt; CDMoyer: woot
+
+09:05 &lt; CDMoyer&gt; Being on the same coast as my linode is very nice.
+
+09:05 &lt; CDMoyer&gt; 1/3 the ping and 80% faster transfer. ;)
+
+09:06 &lt; tasaro&gt; that's because I put red pinstripes on your IPz
+
+09:06 &lt; scott&gt; racing stripes
+
+09:06 &lt; StevenK&gt; Because red VPSes go faster
+
+09:06 &lt; scott&gt; 1/3 the bling though
+
+09:06 &lt; CDMoyer&gt; awesome.  i'm ordering the next linode with a spoiler, too.</code></pre>
+
+<p>(caker and tasaro are linode staff, and in that chat log, perfectly demonstrate the knowledge, responsiveness, helpfulness and sense of humor of the company)</p>
+
+<p>For the record, I've got a Linode 540.  $30/month, 15G storage, 540M ram and 300G transfer.  Their base plan is $20/month and provides 360M ram, 10G storage and 200G transfer.  Also, for the record, they don't have a referral plan. ;)</p>
+
+<p>In case you missed it, it's <a href="http://linode.com/">linode.com</a></p>

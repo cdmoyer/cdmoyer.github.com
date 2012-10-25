@@ -1,0 +1,36 @@
+---
+layout: post
+title: Ramblings Moved to Tumblr
+---
+
+<p>Not exactly sure why.   I decided to make the home page of <a href="http://inarow.net/">inarow.net</a> something else (which isn&#8217;t done yet.)  So, I started shopping around for blogging options.  I see too much of wordpress on the clock, so I wrote that off.  I ended up on tumblr because I liked their API, flexibility and capabilities.</p>
+
+
+
+<p>Speaking of API, it was about an hour to import all my posts from bloxsom.</p>
+
+
+
+<!-- more -->
+
+
+
+<ol><li>Install ruby-tumblr gem</li>
+
+<li>Install RedCloth gem</li>
+
+<li>Whip up a script
+
+<script src="http://gist.github.com/222114.js"></script></li>
+
+<li><p>Run the script</p>
+
+
+
+<blockquote>
+
+  <p>find blog/entries/ -type f -name &#8216;*.txt&#8217; | grep -v &#8216;draft/&#8217; | ruby tumbleit.rb</p>
+
+</blockquote></li>
+
+</ol>

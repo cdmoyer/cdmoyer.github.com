@@ -1,0 +1,40 @@
+---
+layout: post
+title: jThrottle - A jQuery Plugin to Throttle Big Loops
+
+
+---
+
+<div style="float:left">
+
+<p><img src="http://inarow.net/static/images/entries/jthrottle.gif" title="Uh oh!" alt="Uh oh!"/><br/></p>
+
+</div>
+
+<p>Inspired by <a href="http://osteele.com/archives/2008/04/conquering-busy-cursor-sequentially">Oliver Steele's Sequentially Library</a> and <a href="http://debuggable.com/posts/run-intense-js-without-freezing-the-browser:480f4dd6-f864-4f72-ae16-41cccbdd56cb">this post</a> by Felix Geisendörfer, I created a very simple jQuery plugin.</p>
+
+<p>It provides a drop-in replacement for each(), which performs the loop in iterations and pauses between each iteration.  You'd only do this if you are iterating over a largish set and performing non-trivial operations.  Basically, if the browser freezes, this is a decent solution as the call to setTimeout() allows the browsers UI thread to get a slice of the action and prevents spinning cursor syndrome.</p>
+
+<p>If you wrote:</p>
+
+<pre><code>$('foo').each(function () { alert($(this).html()); });</code></pre>
+
+Now you write:
+
+<pre><code>
+
+$('foo').throttle(function () { alert($(this).html()); });</code></pre>
+
+<p>Or:</p>
+
+<pre><code>$('foo').throttle(
+
+		function () { alert($(this).html()); },
+
+		{per: 100, pause: 10});</code></pre>
+
+<ul><li><a href="http://inarow.net/static/jthrottle/">jThrottle Project Page</a></li>
+
+	<li><a href="http://plugins.jquery.com/project/jthrottle">jQuery Plugins Page</a></li>
+
+</ul>

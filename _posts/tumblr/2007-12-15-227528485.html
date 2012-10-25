@@ -1,0 +1,148 @@
+---
+layout: post
+title: 'Quick, Cheap and Simple: Backups with s3sync'
+
+
+---
+
+<p>Here are some quick notes on the step-by-step process I used to set up automated backups to Amazon's S3 on my linux server.  Not much is Ubuntu, or even linux, specfic, so it should be quite applicable for other platforms.</p>
+
+<h2>Create an amazon s3 account</h2>
+
+<ul><li>Visit <a href="http://www.amazon.com/exec/obidos/tg/browse/-/16427261/sr=53-1/qid=1197662899/ref=tr_291911">Amazon's S3 Site</a></li>
+
+	<li>Create an Account</li>
+
+	<li>Enable S3 on your account</li>
+
+	<li>Hover over the “Your Web Services button,” go to “<span class="caps">AWS</span> Access Identifiers”</li>
+
+	<li>Grab your Access ID and Secret Key, remember them for later</li>
+
+</ul><h2>Get s3sync</h2>
+
+<ul><li>Install ruby &gt;= 1.8.4, if you don't already have it</li>
+
+</ul><pre><code> sudo apt-get install ruby</code></pre>
+
+<ul><li>Install openssl for ruby, if needed</li>
+
+</ul><pre><code> sudo apt-get install libopenssl-ruby</code></pre>
+
+<ul><li>Download s3sync</li>
+
+</ul><pre><code>  cd ~
+
+  wget <a href="http://s3.amazonaws.com/ServEdge_pub/s3sync/s3sync.tar.gz">http://s3.amazonaws.com/ServEdge_pub/s3sync/s3sync.tar.gz</a></code></pre>
+
+<ul><li>Put it somewhere (I chose /usr/local/s3sync)</li>
+
+</ul><pre><code>  cd /usr/local
+
+  sudo tar xzfv ~/s3sync.tar.gz</code></pre>
+
+<h2>Configure s3sync</h2>
+
+<ul><li>Copy example config to config file</li>
+
+</ul><pre><code>  cd /usr/local/s3sync
+
+  cp s3config.yml.example s3sync.yml</code></pre>
+
+<ul><li>Make sure and set permissions on this file, probably (root.root 600), so others can't nab your key</li>
+
+	<li>Edit s3sync.yml, put your own Keys in there</li>
+
+	<li>I set the ssl_cert_dir to /usr/local/s3sync/certs and created that directory</li>
+
+</ul><h2>Get <span class="caps">SSL</span> certs</h2>
+
+<ul><li>I gathered these instructions in s3sync/<span class="caps">README</span>.txt</li>
+
+	<li>Download cert file</li>
+
+</ul><pre><code> wget <a href="http://mirbsd.mirsolutions.de/cvs.cgi/~checkout~/src/etc/ssl.certs.shar?rev=1.10;content-type=application%2Fx-shar">http://mirbsd.mirsolutions.de/cvs.cgi/~checkout~/src/etc/ssl.certs.shar?rev=1.10;content-type=application%2Fx-shar</a></code></pre>
+
+<ul><li>Run this in /usr/local/s3sync/certs</li>
+
+</ul><h2>Create bucket</h2>
+
+<ul><li>Pick a name for your bucket that you'll remember</li>
+
+	<li>Create the bucket</li>
+
+</ul><pre><code>  cd /usr/local/s3sync
+
+  ./s3cmd.rb -s createbucket bucketname</code></pre>
+
+<h2>Now you can sync</h2>
+
+<ul><li>Do a dry run:</li>
+
+</ul><pre><code>  cd /usr/local/s3sync;
+
+  ./s3sync.rb -snrv --delete /etc/ bucketname:etc</code></pre>
+
+<ul><li>If it looks good, remove the -n (dry run)</li>
+
+</ul><pre><code> ./s3sync.rb -srv --delete /etc/ bucketname:etc</code></pre>
+
+<ul><li>You can use the the <a href="http://jets3t.s3.amazonaws.com/applets-jets3t-0.5.0/jets3t-cockpit.html">JeS3t applet</a> to verify what you uploaded, it's a java applet designed for examing and manipulating your s3 buckets.<br/>
+
+  Go to the “Direct Login” tab and put in your access id and secret key.</li>
+
+</ul><ul><li>Rinse and repeat with other directories you wish to backup.</li>
+
+</ul><h2>Cron it</h2>
+
+<p>I created a simple script and threw it in /etc/cron.weekly/s3backup</p>
+
+<pre><code> #!/bin/bash</code></pre>
+
+<span class="caps">SARGS</span>=“-vs”  # you can add -n in here for testing, remove s for non-ssl, remove verbosity, etc
+
+<span class="caps">SENDMAIL</span>=/usr/sbin/sendmail
+
+<span class="caps">EMAIL</span>=myuser@mydomain
+
+
+
+cd /usr/local/s3sync
+
+
+
+echo -e “To: ${EMAIL}\nSubject: s3backup results\nContent-type: text/plain\n\n” &gt; /tmp/s3backup.log
+
+
+
+pg_dumpall -Ucdmoyer | gzip &gt; /opt/www/db/pg_dumpall.gz  #/root/.pgpass is needed for this
+
+./s3sync.rb  ${SARGS} —delete -r /etc/ bucketname:etc&#160;&#187; /tmp/s3backup.log
+
+./s3sync.rb  ${SARGS} —delete -r /opt/ bucketname:opt&#160;&#187; /tmp/s3backup.log
+
+./s3sync.rb  ${SARGS} —delete -r /var/backups/ bucketname:var/backups&#160;&#187; /tmp/s3backup.log
+
+
+
+cat /tmp/s3backup.log | ${SENDMAIL} “${EMAIL}”
+
+
+
+<h2>Notes &amp; Cost</h2>
+
+<p>This was originally done on Ubuntu Gutsy Gibon, so your mileage may vary.</p>
+
+<p>Things I did:</p>
+
+<ul><li>backed up /etc, deleted it, did it again</li>
+
+	<li>backed up 700M in /opt</li>
+
+	<li>backed up a couple Megs in /var/backups</li>
+
+	<li>deleted stuff from my home directory, taking /opt back to 300M</li>
+
+	<li>ran s3backup several times for testing.</li>
+
+</ul><p><strong>Total Cost:</strong> $0.29 so far, and it will cost me $0.15 at the end of the month.  It seems to cost a bit less than a penny each time I sync.</p>
