@@ -5,6 +5,7 @@ title: CDMoyer's Blog
 
 <div id="menu">
 	<ul>
+		<li class="home"><a href="http://inarow.net/">CDMoyer's Home Page</a></li>
 	{% for post in site.posts offset: 0 limit: 15 %}
       <li><a href="{{ post.url }}">{{ post.title }}</a>
 		<br />
@@ -12,7 +13,7 @@ title: CDMoyer's Blog
 	  </li>
 
     {% endfor %}
-		<li><a href="archive.html">Older Posts &raquo;</a></li>
+		<li><a href="/archive.html">Older Posts &raquo;</a></li>
 	</ul>
 </div>
 <div id="post">
