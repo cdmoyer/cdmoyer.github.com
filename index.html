@@ -7,10 +7,12 @@ title: CDMoyer's Blog
 	<ul>
 		<li class="home"><a href="http://inarow.net/">CDMoyer's Home Page</a></li>
 	{% for post in site.posts offset: 0 limit: 15 %}
+        {% unless post.draft %}
       <li><a href="{{ post.url }}">{{ post.title }}</a>
 		<br />
 		<div class="date">{{ post.date | date_to_string }}</div>
 	  </li>
+        {% endunless %}
 
     {% endfor %}
 		<li><a href="/archive.html">Older Posts &raquo;</a></li>
