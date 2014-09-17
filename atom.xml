@@ -15,7 +15,7 @@ layout: nil
   </author>
 
   {% for post in site.posts %}
-  {% unless post.draft %}
+  {% if !post.draft %}
   <entry>
     <id>http://blog.inarow.net{{ post.id }}</id>
     <link type="text/html" rel="alternate" href="http://blog.inarow.net{{ post.url }}"/>
@@ -27,7 +27,7 @@ layout: nil
     </author>
     <content type="html">{{ post.content | xml_escape }}</content>
   </entry>
-  {% endunless %}
+  {% endif %}
   {% endfor %}
  
 </feed>

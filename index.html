@@ -7,12 +7,12 @@ title: CDMoyer's Blog
 	<ul>
 		<li class="home"><a href="http://inarow.net/">CDMoyer's Home Page</a></li>
 	{% for post in site.posts offset: 0 limit: 15 %}
-        {% unless post.draft %}
+        {% if !post.draft %}
       <li><a href="{{ post.url }}">{{ post.title }}</a>
 		<br />
 		<div class="date">{{ post.date | date_to_string }}</div>
 	  </li>
-        {% endunless %}
+        {% endif %}
 
     {% endfor %}
 		<li><a href="/archive.html">Older Posts &raquo;</a></li>
@@ -20,12 +20,14 @@ title: CDMoyer's Blog
 </div>
 <div id="post">
 	{% for post in site.posts offset: 0 limit: 1 %}
+      {% if !post.draft %}
       <h2><a href="{{ post.url }}">{{ post.title }}</a></h2>
        {{ post.content }}
 
 	   <div style="font-size: .8em; color: #999">
       {{ post.date | date_to_string }}
 	  </div>
+      {% endif %}
     {% endfor %}
 </div>
 <div style="clear: both"></div>
