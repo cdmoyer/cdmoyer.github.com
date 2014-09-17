@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8" />
 	<title>{{ page.title }}</title>
 	<link rel="icon" href="http://24.media.tumblr.com/avatar_2a67ecbb67f0_16.png"/>
 	<link href='http://fonts.googleapis.com/css?family=Annie+Use+Your+Telescope|Architects+Daughter' rel='stylesheet' type='text/css'>
@@ -25,22 +26,30 @@
 
 		#menu { 
 			width: 30%; float: left; font-size: .8em;
-			background-color: rgba(255,255,255,0.6); 
+			background-color: rgba(255,255,255,0.7); 
 		}
 		h1 a, #menu a { background-color: rgba(255,255,255,0); }
 		#menu .date { font-size: .8em; }
 		#post { 
-			float: right; width: 67%;
-			background-color: rgba(255,255,255,0.6); 
+			float: right; 
+            padding: 10px 10px 10px 30px;
+            width: 650px;
 		}
+
+        #hmm {
+			background-color: rgba(255,255,255,0.9); 
+            width: 1020px; margin: 0px auto
+        }
 
 	</style>
 </head>
 
 <body>
+<div id="hmm">
 	<h1><a href="/">Hi, I'm Chris Moyer's Blog.</a></h1>
 	<div id="content">
 	{{ content }}
 	</div>
+    </div>
 </body>
 </html>
